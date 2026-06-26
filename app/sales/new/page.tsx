@@ -1,3 +1,4 @@
+import AppNav from "@/components/AppNav";
 const products = [
     {
       name: "Rice",
@@ -42,6 +43,7 @@ const products = [
             >
               Back to dashboard
             </a>
+            <AppNav />
           </header>
   
           <section className="mt-8 grid gap-6 lg:grid-cols-3">
