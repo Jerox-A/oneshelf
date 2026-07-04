@@ -10,6 +10,7 @@ type Product = {
   stock_quantity: number;
   low_stock_threshold: number;
 };
+export const dynamic = "force-dynamic";
 
 export default async function ProductsPage() {
   const { data: products, error } = await supabase
