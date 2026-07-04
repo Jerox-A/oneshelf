@@ -10,6 +10,7 @@ type Product = {
   stock_quantity: number;
   low_stock_threshold: number;
 };
+
 export const dynamic = "force-dynamic";
 
 export default async function ProductsPage() {
@@ -52,10 +53,10 @@ export default async function ProductsPage() {
             </div>
 
             <a
-              href="/dashboard"
-              className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200"
+              href="/products/new"
+              className="rounded-xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950"
             >
-              Dashboard
+              Add product
             </a>
           </div>
 
@@ -82,9 +83,18 @@ export default async function ProductsPage() {
         </section>
 
         <section className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Product list</h2>
-            <p className="text-sm text-slate-400">Loaded from Supabase</p>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold">Product list</h2>
+              <p className="text-sm text-slate-400">Loaded from Supabase</p>
+            </div>
+
+            <a
+              href="/products/new"
+              className="rounded-xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950"
+            >
+              Add product
+            </a>
           </div>
 
           <div className="mt-5 overflow-hidden rounded-xl border border-slate-800">
