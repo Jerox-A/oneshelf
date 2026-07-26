@@ -1,4 +1,5 @@
 import AppNav from "@/components/AppNav";
+import LogoutButton from "@/components/LogoutButton";
 import ThemeToggle from "@/components/ThemeToggle";
 import { supabase } from "@/lib/supabase";
 
@@ -137,8 +138,9 @@ export default async function DashboardPage() {
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <ThemeToggle />
+              <LogoutButton />
 
               <a
                 href="/sales/new"
