@@ -1,7 +1,8 @@
 import AppNav from "@/components/AppNav";
+import DeleteProductButton from "@/components/DeleteProductButton";
 import LogoutButton from "@/components/LogoutButton";
 import ThemeToggle from "@/components/ThemeToggle";
-import { supabase } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabaseServer";
 
 type Product = {
   id: string;
@@ -20,6 +21,8 @@ function formatMoney(amount: number) {
 }
 
 export default async function ProductsPage() {
+  const supabase = await createSupabaseServerClient();
+
   const { data, error } = await supabase
     .from("products")
     .select(
@@ -52,10 +55,15 @@ export default async function ProductsPage() {
   if (error) {
     return (
       <main className="min-h-screen bg-slate-50 p-8 text-slate-950 dark:bg-slate-950 dark:text-slate-100">
-        <p>Could not load products.</p>
+        <p className="text-xl font-bold">Could not load products.</p>
+
         <p className="mt-2 text-sm text-red-600 dark:text-red-400">
           {error.message}
         </p>
+
+        <pre className="mt-4 overflow-auto rounded-xl bg-slate-900 p-4 text-sm text-white">
+          {JSON.stringify(error, null, 2)}
+        </pre>
       </main>
     );
   }
@@ -166,14 +174,15 @@ export default async function ProductsPage() {
                   <th className="px-4 py-3">Selling price</th>
                   <th className="px-4 py-3">Stock</th>
                   <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Actions</th>
                 </tr>
               </thead>
 
               <tbody>
                 {products.length === 0 ? (
                   <tr className="border-t border-slate-200 dark:border-slate-800">
-                    <td className="px-4 py-5 text-slate-500" colSpan={6}>
-                      No products yet. Add your first product.
+                    <td className="px-4 py-5 text-slate-500" colSpan={7}>
+                      No products loaded.
                     </td>
                   </tr>
                 ) : (
@@ -212,6 +221,21 @@ export default async function ProductsPage() {
                               In stock
                             </span>
                           )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-wrap gap-2">
+                            <a
+                              href={`/products/${product.id}`}
+                              className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                            >
+                              Edit
+                            </a>
+
+                            <DeleteProductButton
+                              productId={product.id}
+                              productName={product.name}
+                            />
+                          </div>
                         </td>
                       </tr>
                     );
