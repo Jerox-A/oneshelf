@@ -100,6 +100,33 @@ export default async function ProductsPage({
     0
   );
 
+  function getProductStatus(product: Product) {
+    const stockQuantity = Number(product.stock_quantity || 0);
+    const lowStockThreshold = Number(product.low_stock_threshold || 0);
+
+    if (stockQuantity === 0) {
+      return {
+        label: "Out of stock",
+        className:
+          "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300",
+      };
+    }
+
+    if (stockQuantity <= lowStockThreshold) {
+      return {
+        label: "Low stock",
+        className:
+          "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
+      };
+    }
+
+    return {
+      label: "In stock",
+      className:
+        "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300",
+    };
+  }
+
   if (error) {
     return (
       <main className="min-h-screen bg-slate-50 p-8 text-slate-950 dark:bg-slate-950 dark:text-slate-100">
@@ -118,38 +145,48 @@ export default async function ProductsPage({
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-950 transition-colors dark:bg-slate-950 dark:text-slate-100">
-      <div className="mx-auto max-w-6xl px-6 py-8">
-        <header className="border-b border-slate-200 pb-6 dark:border-slate-800">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+        <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-start">
             <div>
-              <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300">
+                <span className="h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400" />
                 OneShelf
-              </p>
+              </div>
 
-              <h1 className="mt-2 text-3xl font-bold tracking-tight">
+              <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
                 Products
               </h1>
 
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400">
                 Search inventory, filter stock, update products, and manage
-                prices.
+                prices from one clean business workspace.
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <ThemeToggle />
-              <LogoutButton />
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 shadow-inner dark:border-slate-800 dark:bg-slate-950">
+              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                <div className="rounded-xl bg-white p-1 shadow-sm dark:bg-slate-900">
+                  <ThemeToggle />
+                </div>
 
-              <a
-                href="/products/new"
-                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
-              >
-                Add product
-              </a>
+                <div className="rounded-xl bg-white p-1 shadow-sm dark:bg-slate-900">
+                  <LogoutButton />
+                </div>
+
+                <a
+                  href="/products/new"
+                  className="flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                >
+                  + Add product
+                </a>
+              </div>
             </div>
           </div>
 
-          <AppNav />
+          <div className="mt-6">
+            <AppNav />
+          </div>
         </header>
 
         <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -196,7 +233,7 @@ export default async function ProductsPage({
           </div>
         </section>
 
-        <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h2 className="text-lg font-semibold">Inventory list</h2>
@@ -207,7 +244,7 @@ export default async function ProductsPage({
 
             <a
               href="/products/new"
-              className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+              className="rounded-xl bg-blue-600 px-4 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
             >
               Add product
             </a>
@@ -275,7 +312,93 @@ export default async function ProductsPage({
             </a>
           </form>
 
-          <div className="mt-5 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+          <div className="mt-5 grid gap-4 md:hidden">
+            {filteredProducts.length === 0 ? (
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
+                No products match your search or filters.
+              </div>
+            ) : (
+              filteredProducts.map((product) => {
+                const status = getProductStatus(product);
+
+                return (
+                  <div
+                    key={product.id}
+                    className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="font-semibold">{product.name}</h3>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                          {product.category}
+                        </p>
+                      </div>
+
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${status.className}`}
+                      >
+                        {status.label}
+                      </span>
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <p className="text-slate-500 dark:text-slate-400">
+                          Cost
+                        </p>
+                        <p className="font-semibold">
+                          {formatMoney(product.cost_price)}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-slate-500 dark:text-slate-400">
+                          Selling
+                        </p>
+                        <p className="font-semibold">
+                          {formatMoney(product.selling_price)}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-slate-500 dark:text-slate-400">
+                          Stock
+                        </p>
+                        <p className="font-semibold">
+                          {product.stock_quantity}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-slate-500 dark:text-slate-400">
+                          Alert
+                        </p>
+                        <p className="font-semibold">
+                          {product.low_stock_threshold}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <a
+                        href={`/products/${product.id}`}
+                        className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                      >
+                        Edit
+                      </a>
+
+                      <DeleteProductButton
+                        productId={product.id}
+                        productName={product.name}
+                      />
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          <div className="mt-5 hidden overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 md:block">
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-100 text-slate-600 dark:bg-slate-950 dark:text-slate-400">
                 <tr>
@@ -298,14 +421,7 @@ export default async function ProductsPage({
                   </tr>
                 ) : (
                   filteredProducts.map((product) => {
-                    const stockQuantity = Number(product.stock_quantity || 0);
-                    const lowStockThreshold = Number(
-                      product.low_stock_threshold || 0
-                    );
-
-                    const isOutOfStock = stockQuantity === 0;
-                    const isLowStock =
-                      stockQuantity > 0 && stockQuantity <= lowStockThreshold;
+                    const status = getProductStatus(product);
 
                     return (
                       <tr
@@ -324,21 +440,15 @@ export default async function ProductsPage({
                         <td className="px-4 py-3">
                           {formatMoney(product.selling_price)}
                         </td>
-                        <td className="px-4 py-3">{stockQuantity}</td>
                         <td className="px-4 py-3">
-                          {isOutOfStock ? (
-                            <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-800 dark:bg-red-950 dark:text-red-300">
-                              Out of stock
-                            </span>
-                          ) : isLowStock ? (
-                            <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                              Low stock
-                            </span>
-                          ) : (
-                            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                              In stock
-                            </span>
-                          )}
+                          {product.stock_quantity}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-semibold ${status.className}`}
+                          >
+                            {status.label}
+                          </span>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-2">

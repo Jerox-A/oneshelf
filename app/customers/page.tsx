@@ -1,6 +1,7 @@
 import AppNav from "@/components/AppNav";
 import DeleteCustomerButton from "@/components/DeleteCustomerButton";
 import LogoutButton from "@/components/LogoutButton";
+import RecordCustomerPaymentButton from "@/components/RecordCustomerPaymentButton";
 import ThemeToggle from "@/components/ThemeToggle";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 
@@ -115,7 +116,8 @@ export default async function CustomersPage({
               </h1>
 
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                Search customers, track balances, and manage customer records.
+                Search customers, track balances, record payments, and manage
+                customer records.
               </p>
             </div>
 
@@ -184,7 +186,8 @@ export default async function CustomersPage({
             <div>
               <h2 className="text-lg font-semibold">Customer list</h2>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                Showing {filteredCustomers.length} of {customers.length} customers
+                Showing {filteredCustomers.length} of {customers.length}{" "}
+                customers
               </p>
             </div>
 
@@ -261,8 +264,8 @@ export default async function CustomersPage({
                   </tr>
                 ) : (
                   filteredCustomers.map((customer) => {
-                    const hasBalance =
-                      Number(customer.balance_owed || 0) > 0;
+                    const balanceOwed = Number(customer.balance_owed || 0);
+                    const hasBalance = balanceOwed > 0;
 
                     return (
                       <tr
@@ -294,6 +297,12 @@ export default async function CustomersPage({
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-2">
+                            <RecordCustomerPaymentButton
+                              customerId={customer.id}
+                              customerName={customer.name}
+                              currentBalance={balanceOwed}
+                            />
+
                             <a
                               href={`/customers/${customer.id}`}
                               className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
