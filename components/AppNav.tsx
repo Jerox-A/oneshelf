@@ -20,6 +20,10 @@ const links = [
     href: "/reports",
   },
   {
+    label: "Exports",
+    href: "/exports",
+  },
+  {
     label: "New Sale",
     href: "/sales/new",
   },
