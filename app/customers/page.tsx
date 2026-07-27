@@ -31,7 +31,19 @@ function formatDate(dateString: string | null) {
   });
 }
 
-export default async function CustomersPage() {
+export default async function CustomersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    q?: string;
+    balance?: string;
+  }>;
+}) {
+  const params = await searchParams;
+
+  const search = params.q || "";
+  const selectedBalance = params.balance || "all";
+
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
@@ -40,6 +52,22 @@ export default async function CustomersPage() {
     .order("created_at", { ascending: false });
 
   const customers = (data || []) as Customer[];
+
+  const filteredCustomers = customers.filter((customer) => {
+    const balanceOwed = Number(customer.balance_owed || 0);
+
+    const matchesSearch =
+      search.trim() === "" ||
+      customer.name.toLowerCase().includes(search.toLowerCase()) ||
+      (customer.phone || "").toLowerCase().includes(search.toLowerCase());
+
+    const matchesBalance =
+      selectedBalance === "all" ||
+      (selectedBalance === "owes" && balanceOwed > 0) ||
+      (selectedBalance === "clear" && balanceOwed === 0);
+
+    return matchesSearch && matchesBalance;
+  });
 
   const totalCustomers = customers.length;
 
@@ -87,7 +115,7 @@ export default async function CustomersPage() {
               </h1>
 
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                Track customer balances, contact details, and recent activity.
+                Search customers, track balances, and manage customer records.
               </p>
             </div>
 
@@ -152,11 +180,11 @@ export default async function CustomersPage() {
         </section>
 
         <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h2 className="text-lg font-semibold">Customer list</h2>
               <p className="text-sm text-slate-500 dark:text-slate-400">
-                Loaded from Supabase
+                Showing {filteredCustomers.length} of {customers.length} customers
               </p>
             </div>
 
@@ -167,6 +195,49 @@ export default async function CustomersPage() {
               Add customer
             </a>
           </div>
+
+          <form className="mt-5 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_auto_auto]">
+            <label className="grid gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                Search
+              </span>
+              <input
+                name="q"
+                defaultValue={search}
+                placeholder="Search customer or phone"
+                className="h-11 rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-950 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              />
+            </label>
+
+            <label className="grid gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                Balance
+              </span>
+              <select
+                name="balance"
+                defaultValue={selectedBalance}
+                className="h-11 rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-950 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              >
+                <option value="all">All customers</option>
+                <option value="owes">Owes balance</option>
+                <option value="clear">Clear account</option>
+              </select>
+            </label>
+
+            <button
+              type="submit"
+              className="h-11 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 lg:self-end"
+            >
+              Apply
+            </button>
+
+            <a
+              href="/customers"
+              className="flex h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 lg:self-end"
+            >
+              Clear
+            </a>
+          </form>
 
           <div className="mt-5 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
             <table className="w-full text-left text-sm">
@@ -182,14 +253,14 @@ export default async function CustomersPage() {
               </thead>
 
               <tbody>
-                {customers.length === 0 ? (
+                {filteredCustomers.length === 0 ? (
                   <tr className="border-t border-slate-200 dark:border-slate-800">
                     <td className="px-4 py-5 text-slate-500" colSpan={6}>
-                      No customers loaded.
+                      No customers match your search or filters.
                     </td>
                   </tr>
                 ) : (
-                  customers.map((customer) => {
+                  filteredCustomers.map((customer) => {
                     const hasBalance =
                       Number(customer.balance_owed || 0) > 0;
 
