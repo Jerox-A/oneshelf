@@ -1,7 +1,8 @@
 import AppNav from "@/components/AppNav";
+import CancelSaleButton from "@/components/CancelSaleButton";
 import LogoutButton from "@/components/LogoutButton";
 import ThemeToggle from "@/components/ThemeToggle";
-import { supabase } from "@/lib/supabase";
+import { createSupabaseServerClient } from "@/lib/supabaseServer";
 
 type Sale = {
   id: string;
@@ -40,6 +41,8 @@ function formatDate(dateString: string) {
 }
 
 export default async function SalesPage() {
+  const supabase = await createSupabaseServerClient();
+
   const [salesResponse, saleItemsResponse] = await Promise.all([
     supabase
       .from("sales")
@@ -59,7 +62,7 @@ export default async function SalesPage() {
   if (error) {
     return (
       <main className="min-h-screen bg-slate-50 p-8 text-slate-950 dark:bg-slate-950 dark:text-slate-100">
-        <p>Could not load sales.</p>
+        <p className="text-xl font-bold">Could not load sales.</p>
         <p className="mt-2 text-sm text-red-600 dark:text-red-400">
           {error.message}
         </p>
@@ -116,7 +119,8 @@ export default async function SalesPage() {
               </h1>
 
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                Review saved sales, payments, balances, and payment methods.
+                Review saved sales, receipts, payments, balances, and payment
+                methods.
               </p>
             </div>
 
@@ -151,7 +155,9 @@ export default async function SalesPage() {
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               Total paid
             </p>
-            <p className="mt-3 text-3xl font-bold">{formatMoney(totalPaid)}</p>
+            <p className="mt-3 text-3xl font-bold text-emerald-700 dark:text-emerald-400">
+              {formatMoney(totalPaid)}
+            </p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Cash collected
             </p>
@@ -161,7 +167,9 @@ export default async function SalesPage() {
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               Total balance
             </p>
-            <p className="mt-3 text-3xl font-bold">{formatMoney(totalBalance)}</p>
+            <p className="mt-3 text-3xl font-bold text-amber-700 dark:text-amber-400">
+              {formatMoney(totalBalance)}
+            </p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Still unpaid
             </p>
@@ -195,7 +203,75 @@ export default async function SalesPage() {
             </a>
           </div>
 
-          <div className="mt-5 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+          <div className="mt-5 grid gap-4 md:hidden">
+            {sales.length === 0 ? (
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
+                No sales yet. Create your first sale.
+              </div>
+            ) : (
+              sales.map((sale) => (
+                <div
+                  key={sale.id}
+                  className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className="font-semibold">{sale.customer_name}</h3>
+                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                        {formatDate(sale.created_at)}
+                      </p>
+                    </div>
+
+                    <p className="font-bold">{formatMoney(sale.total_amount)}</p>
+                  </div>
+
+                  <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
+                    {getSaleItemSummary(sale.id)}
+                  </p>
+
+                  <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-slate-500 dark:text-slate-400">
+                        Paid
+                      </p>
+                      <p className="font-semibold text-emerald-700 dark:text-emerald-400">
+                        {formatMoney(sale.amount_paid)}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-slate-500 dark:text-slate-400">
+                        Balance
+                      </p>
+                      <p className="font-semibold text-amber-700 dark:text-amber-400">
+                        {formatMoney(sale.balance_owed)}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-slate-500 dark:text-slate-400">
+                        Payment
+                      </p>
+                      <p className="font-semibold">{sale.payment_method}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <a
+                      href={`/sales/${sale.id}`}
+                      className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                      View receipt
+                    </a>
+
+                    <CancelSaleButton saleId={sale.id} />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          <div className="mt-5 hidden overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 md:block">
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-100 text-slate-600 dark:bg-slate-950 dark:text-slate-400">
                 <tr>
@@ -206,13 +282,14 @@ export default async function SalesPage() {
                   <th className="px-4 py-3">Paid</th>
                   <th className="px-4 py-3">Balance</th>
                   <th className="px-4 py-3">Payment</th>
+                  <th className="px-4 py-3">Actions</th>
                 </tr>
               </thead>
 
               <tbody>
                 {sales.length === 0 ? (
                   <tr className="border-t border-slate-200 dark:border-slate-800">
-                    <td className="px-4 py-5 text-slate-500" colSpan={7}>
+                    <td className="px-4 py-5 text-slate-500" colSpan={8}>
                       No sales yet. Create your first sale.
                     </td>
                   </tr>
@@ -242,6 +319,18 @@ export default async function SalesPage() {
                       </td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
                         {sale.payment_method}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-2">
+                          <a
+                            href={`/sales/${sale.id}`}
+                            className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                          >
+                            Receipt
+                          </a>
+
+                          <CancelSaleButton saleId={sale.id} />
+                        </div>
                       </td>
                     </tr>
                   ))
