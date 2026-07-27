@@ -16,6 +16,10 @@ const links = [
     href: "/sales",
   },
   {
+    label: "Payments",
+    href: "/payments",
+  },
+  {
     label: "Reports",
     href: "/reports",
   },
