@@ -177,7 +177,7 @@ export default function NewSalePage() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push(`/sales/${sale.id}`);
     router.refresh();
   }
 
