@@ -2,10 +2,22 @@ import AppNav from "@/components/AppNav";
 import ExportCsvButton from "@/components/ExportCsvButton";
 import LogoutButton from "@/components/LogoutButton";
 import ThemeToggle from "@/components/ThemeToggle";
+import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-export default function ExportsPage() {
+export default async function ExportsPage() {
+  const supabase = await createSupabaseServerClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-950 transition-colors dark:bg-slate-950 dark:text-slate-100">
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">

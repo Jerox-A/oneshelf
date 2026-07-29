@@ -2,6 +2,7 @@ import AppNav from "@/components/AppNav";
 import LogoutButton from "@/components/LogoutButton";
 import ThemeToggle from "@/components/ThemeToggle";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { redirect } from "next/navigation";
 
 type Sale = {
   id: string;
@@ -163,6 +164,14 @@ export default async function ReportsPage({
   });
 
   const supabase = await createSupabaseServerClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
 
   const [salesResponse, saleItemsResponse, productsResponse] =
     await Promise.all([
@@ -482,9 +491,7 @@ export default async function ReportsPage({
                         </h3>
                       </div>
 
-                      <p className="font-bold">
-                        {product.quantity} sold
-                      </p>
+                      <p className="font-bold">{product.quantity} sold</p>
                     </div>
 
                     <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">

@@ -2,6 +2,7 @@ import AppNav from "@/components/AppNav";
 import LogoutButton from "@/components/LogoutButton";
 import ThemeToggle from "@/components/ThemeToggle";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { redirect } from "next/navigation";
 
 type CustomerPayment = {
   id: string;
@@ -29,6 +30,14 @@ function formatDate(dateString: string) {
 
 export default async function PaymentsPage() {
   const supabase = await createSupabaseServerClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
 
   const { data, error } = await supabase
     .from("customer_payments")
