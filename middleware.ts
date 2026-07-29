@@ -6,6 +6,9 @@ const protectedRoutes = [
   "/products",
   "/customers",
   "/sales",
+  "/payments",
+  "/reports",
+  "/exports",
 ];
 
 export function middleware(request: NextRequest) {
@@ -22,9 +25,7 @@ export function middleware(request: NextRequest) {
   const hasSupabaseSession =
     request.cookies.get("sb-access-token") ||
     request.cookies.get("sb-refresh-token") ||
-    request.cookies
-      .getAll()
-      .some((cookie) => cookie.name.startsWith("sb-"));
+    request.cookies.getAll().some((cookie) => cookie.name.startsWith("sb-"));
 
   if (!hasSupabaseSession) {
     const loginUrl = new URL("/login", request.url);
@@ -35,5 +36,13 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/products/:path*", "/customers/:path*", "/sales/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/products/:path*",
+    "/customers/:path*",
+    "/sales/:path*",
+    "/payments/:path*",
+    "/reports/:path*",
+    "/exports/:path*",
+  ],
 };

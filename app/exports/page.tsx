@@ -8,37 +8,52 @@ export const dynamic = "force-dynamic";
 export default function ExportsPage() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-950 transition-colors dark:bg-slate-950 dark:text-slate-100">
-      <div className="mx-auto max-w-6xl px-6 py-8">
-        <header className="border-b border-slate-200 pb-6 dark:border-slate-800">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+        <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-start">
             <div>
-              <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300">
+                <span className="h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400" />
                 OneShelf
-              </p>
+              </div>
 
-              <h1 className="mt-2 text-3xl font-bold tracking-tight">
+              <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
                 Exports
               </h1>
 
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400">
                 Download your products, customers, and sales as CSV files for
-                Excel or Google Sheets.
+                Excel, Google Sheets, backups, or accounting.
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <ThemeToggle />
-              <LogoutButton />
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 shadow-inner dark:border-slate-800 dark:bg-slate-950">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                <div className="rounded-xl bg-white p-1 shadow-sm dark:bg-slate-900">
+                  <ThemeToggle />
+                </div>
+
+                <div className="rounded-xl bg-white p-1 shadow-sm dark:bg-slate-900">
+                  <LogoutButton />
+                </div>
+              </div>
             </div>
           </div>
 
-          <AppNav />
+          <div className="mt-6">
+            <AppNav />
+          </div>
         </header>
 
         <section className="mt-8 grid gap-6 md:grid-cols-3">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <h2 className="text-lg font-semibold">Products</h2>
-            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-xl dark:bg-blue-950">
+              📦
+            </div>
+
+            <h2 className="mt-5 text-lg font-semibold">Products</h2>
+
+            <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
               Export product names, categories, prices, stock quantities, and
               low-stock thresholds.
             </p>
@@ -48,9 +63,14 @@ export default function ExportsPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <h2 className="text-lg font-semibold">Customers</h2>
-            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-xl dark:bg-emerald-950">
+              👥
+            </div>
+
+            <h2 className="mt-5 text-lg font-semibold">Customers</h2>
+
+            <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
               Export customer names, phone numbers, balances, and purchase
               dates.
             </p>
@@ -60,9 +80,14 @@ export default function ExportsPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <h2 className="text-lg font-semibold">Sales</h2>
-            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-xl dark:bg-amber-950">
+              🧾
+            </div>
+
+            <h2 className="mt-5 text-lg font-semibold">Sales</h2>
+
+            <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
               Export sales with customer names, sold items, totals, paid
               amounts, balances, and payment methods.
             </p>
@@ -73,18 +98,34 @@ export default function ExportsPage() {
           </div>
         </section>
 
-        <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h2 className="text-lg font-semibold">How to use exports</h2>
+        <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+          <div className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:items-start">
+            <div>
+              <h2 className="text-lg font-semibold">How to use exports</h2>
 
-          <div className="mt-4 grid gap-3 text-sm text-slate-600 dark:text-slate-400">
-            <p>
-              CSV files can be opened in Microsoft Excel, Google Sheets, Apple
-              Numbers, or uploaded into accounting tools.
-            </p>
+              <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+                CSV files can be opened in Microsoft Excel, Google Sheets,
+                Apple Numbers, or uploaded into accounting tools.
+              </p>
+            </div>
 
-            <p>
-              Export regularly if you want an offline backup of your shop data.
-            </p>
+            <div className="grid gap-3 text-sm">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+                <p className="font-semibold">Backup your data</p>
+                <p className="mt-1 text-slate-500 dark:text-slate-400">
+                  Export regularly if you want an offline copy of your shop
+                  records.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+                <p className="font-semibold">Use in spreadsheets</p>
+                <p className="mt-1 text-slate-500 dark:text-slate-400">
+                  Open the CSV file in Excel or Google Sheets to sort, filter,
+                  print, or share reports.
+                </p>
+              </div>
+            </div>
           </div>
         </section>
       </div>

@@ -103,38 +103,48 @@ export default async function CustomersPage({
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-950 transition-colors dark:bg-slate-950 dark:text-slate-100">
-      <div className="mx-auto max-w-6xl px-6 py-8">
-        <header className="border-b border-slate-200 pb-6 dark:border-slate-800">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+        <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-start">
             <div>
-              <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300">
+                <span className="h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400" />
                 OneShelf
-              </p>
+              </div>
 
-              <h1 className="mt-2 text-3xl font-bold tracking-tight">
+              <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
                 Customers
               </h1>
 
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400">
                 Search customers, track balances, record payments, and manage
-                customer records.
+                customer records from one clean workspace.
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <ThemeToggle />
-              <LogoutButton />
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 shadow-inner dark:border-slate-800 dark:bg-slate-950">
+              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                <div className="rounded-xl bg-white p-1 shadow-sm dark:bg-slate-900">
+                  <ThemeToggle />
+                </div>
 
-              <a
-                href="/customers/new"
-                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
-              >
-                Add customer
-              </a>
+                <div className="rounded-xl bg-white p-1 shadow-sm dark:bg-slate-900">
+                  <LogoutButton />
+                </div>
+
+                <a
+                  href="/customers/new"
+                  className="flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                >
+                  + Add customer
+                </a>
+              </div>
             </div>
           </div>
 
-          <AppNav />
+          <div className="mt-6">
+            <AppNav />
+          </div>
         </header>
 
         <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -152,9 +162,7 @@ export default async function CustomersPage({
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               Customers owing
             </p>
-            <p className="mt-3 text-3xl font-bold">
-              {customersOwing.length}
-            </p>
+            <p className="mt-3 text-3xl font-bold">{customersOwing.length}</p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Have unpaid balances
             </p>
@@ -181,7 +189,7 @@ export default async function CustomersPage({
           </div>
         </section>
 
-        <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h2 className="text-lg font-semibold">Customer list</h2>
@@ -193,7 +201,7 @@ export default async function CustomersPage({
 
             <a
               href="/customers/new"
-              className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+              className="rounded-xl bg-blue-600 px-4 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
             >
               Add customer
             </a>
@@ -242,7 +250,92 @@ export default async function CustomersPage({
             </a>
           </form>
 
-          <div className="mt-5 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+          <div className="mt-5 grid gap-4 md:hidden">
+            {filteredCustomers.length === 0 ? (
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
+                No customers match your search or filters.
+              </div>
+            ) : (
+              filteredCustomers.map((customer) => {
+                const balanceOwed = Number(customer.balance_owed || 0);
+                const hasBalance = balanceOwed > 0;
+
+                return (
+                  <div
+                    key={customer.id}
+                    className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="font-semibold">{customer.name}</h3>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                          {customer.phone || "No phone"}
+                        </p>
+                      </div>
+
+                      {hasBalance ? (
+                        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                          Owes
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                          Clear
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <p className="text-slate-500 dark:text-slate-400">
+                          Balance owed
+                        </p>
+                        <p
+                          className={
+                            hasBalance
+                              ? "font-semibold text-amber-700 dark:text-amber-400"
+                              : "font-semibold text-emerald-700 dark:text-emerald-400"
+                          }
+                        >
+                          {formatMoney(balanceOwed)}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-slate-500 dark:text-slate-400">
+                          Last purchase
+                        </p>
+                        <p className="font-semibold">
+                          {formatDate(customer.last_purchase_at)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <RecordCustomerPaymentButton
+                        customerId={customer.id}
+                        customerName={customer.name}
+                        currentBalance={balanceOwed}
+                      />
+
+                      <a
+                        href={`/customers/${customer.id}`}
+                        className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                      >
+                        Edit
+                      </a>
+
+                      <DeleteCustomerButton
+                        customerId={customer.id}
+                        customerName={customer.name}
+                      />
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          <div className="mt-5 hidden overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 md:block">
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-100 text-slate-600 dark:bg-slate-950 dark:text-slate-400">
                 <tr>
@@ -279,7 +372,7 @@ export default async function CustomersPage({
                           {customer.phone || "No phone"}
                         </td>
                         <td className="px-4 py-3">
-                          {formatMoney(customer.balance_owed)}
+                          {formatMoney(balanceOwed)}
                         </td>
                         <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
                           {formatDate(customer.last_purchase_at)}

@@ -81,55 +81,73 @@ export default async function SaleReceiptPage({
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-950 transition-colors dark:bg-slate-950 dark:text-slate-100">
-      <div className="mx-auto max-w-5xl px-6 py-8">
-        <header className="border-b border-slate-200 pb-6 print:hidden dark:border-slate-800">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+      <div className="mx-auto max-w-5xl px-4 py-6 print:max-w-none print:px-0 print:py-0 sm:px-6 sm:py-8">
+        <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm print:hidden dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-start">
             <div>
-              <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300">
+                <span className="h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400" />
                 OneShelf
-              </p>
+              </div>
 
-              <h1 className="mt-2 text-3xl font-bold tracking-tight">
+              <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
                 Sale receipt
               </h1>
 
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                Review, print, or share this sale receipt.
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400">
+                Review, print, or share this sale receipt from one clean
+                workspace.
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <ThemeToggle />
-              <LogoutButton />
-              <PrintReceiptButton />
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 shadow-inner dark:border-slate-800 dark:bg-slate-950">
+              <div className="grid gap-3 sm:grid-cols-4 lg:grid-cols-1">
+                <div className="rounded-xl bg-white p-1 shadow-sm dark:bg-slate-900">
+                  <ThemeToggle />
+                </div>
 
-              <a
-                href="/sales"
-                className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-              >
-                Back to sales
-              </a>
+                <div className="rounded-xl bg-white p-1 shadow-sm dark:bg-slate-900">
+                  <LogoutButton />
+                </div>
+
+                <div className="rounded-xl bg-white p-1 shadow-sm dark:bg-slate-900">
+                  <PrintReceiptButton />
+                </div>
+
+                <a
+                  href="/sales"
+                  className="flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                >
+                  Sales history
+                </a>
+              </div>
             </div>
           </div>
 
-          <AppNav />
+          <div className="mt-6">
+            <AppNav />
+          </div>
         </header>
 
-        <section className="mx-auto mt-8 max-w-3xl rounded-2xl border border-slate-200 bg-white p-8 shadow-sm print:mt-0 print:border-none print:shadow-none dark:border-slate-800 dark:bg-slate-900">
-          <div className="border-b border-slate-200 pb-6 dark:border-slate-800">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <section className="mx-auto mt-8 max-w-3xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm print:mt-0 print:max-w-none print:rounded-none print:border-none print:shadow-none dark:border-slate-800 dark:bg-slate-900">
+          <div className="bg-slate-950 p-6 text-white print:bg-white print:text-slate-950 sm:p-8">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">
+                <p className="text-sm font-semibold text-blue-300 print:text-slate-700">
                   OneShelf
                 </p>
-                <h2 className="mt-2 text-2xl font-bold">Receipt</h2>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+
+                <h2 className="mt-2 text-3xl font-bold tracking-tight">
+                  Receipt
+                </h2>
+
+                <p className="mt-2 text-sm text-slate-300 print:text-slate-600">
                   Receipt ID: {sale.id.slice(0, 8)}
                 </p>
               </div>
 
-              <div className="text-left sm:text-right">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+              <div className="rounded-2xl border border-white/10 bg-white/10 p-4 text-left print:border-slate-200 print:bg-white sm:text-right">
+                <p className="text-sm text-slate-300 print:text-slate-500">
                   Date
                 </p>
                 <p className="mt-1 font-semibold">
@@ -139,102 +157,136 @@ export default async function SaleReceiptPage({
             </div>
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Customer
-              </p>
-              <p className="mt-1 font-semibold">{sale.customer_name}</p>
+          <div className="p-5 sm:p-8">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Customer
+                </p>
+                <p className="mt-1 font-semibold">{sale.customer_name}</p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Payment method
+                </p>
+                <p className="mt-1 font-semibold">{sale.payment_method}</p>
+              </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Payment method
-              </p>
-              <p className="mt-1 font-semibold">{sale.payment_method}</p>
-            </div>
-          </div>
+            <div className="mt-6 grid gap-3 md:hidden">
+              {items.length === 0 ? (
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
+                  No receipt items found.
+                </div>
+              ) : (
+                items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-semibold">{item.product_name}</p>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                          Qty {item.quantity} × {formatMoney(item.unit_price)}
+                        </p>
+                      </div>
 
-          <div className="mt-6 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-100 text-slate-600 dark:bg-slate-950 dark:text-slate-400">
-                <tr>
-                  <th className="px-4 py-3">Item</th>
-                  <th className="px-4 py-3">Qty</th>
-                  <th className="px-4 py-3">Unit price</th>
-                  <th className="px-4 py-3">Total</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {items.length === 0 ? (
-                  <tr className="border-t border-slate-200 dark:border-slate-800">
-                    <td className="px-4 py-5 text-slate-500" colSpan={4}>
-                      No receipt items found.
-                    </td>
-                  </tr>
-                ) : (
-                  items.map((item) => (
-                    <tr
-                      key={item.id}
-                      className="border-t border-slate-200 dark:border-slate-800"
-                    >
-                      <td className="px-4 py-3 font-semibold">
-                        {item.product_name}
-                      </td>
-                      <td className="px-4 py-3">{item.quantity}</td>
-                      <td className="px-4 py-3">
-                        {formatMoney(item.unit_price)}
-                      </td>
-                      <td className="px-4 py-3">
+                      <p className="font-bold">
                         {formatMoney(item.total_price)}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="mt-6 hidden overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 md:block">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-100 text-slate-600 dark:bg-slate-950 dark:text-slate-400">
+                  <tr>
+                    <th className="px-4 py-3">Item</th>
+                    <th className="px-4 py-3">Qty</th>
+                    <th className="px-4 py-3">Unit price</th>
+                    <th className="px-4 py-3 text-right">Total</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {items.length === 0 ? (
+                    <tr className="border-t border-slate-200 dark:border-slate-800">
+                      <td className="px-4 py-5 text-slate-500" colSpan={4}>
+                        No receipt items found.
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    items.map((item) => (
+                      <tr
+                        key={item.id}
+                        className="border-t border-slate-200 dark:border-slate-800"
+                      >
+                        <td className="px-4 py-3 font-semibold">
+                          {item.product_name}
+                        </td>
+                        <td className="px-4 py-3">{item.quantity}</td>
+                        <td className="px-4 py-3">
+                          {formatMoney(item.unit_price)}
+                        </td>
+                        <td className="px-4 py-3 text-right font-semibold">
+                          {formatMoney(item.total_price)}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950 sm:p-5">
+              <div className="grid gap-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Total amount
+                  </span>
+                  <span className="font-semibold">
+                    {formatMoney(sale.total_amount)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Amount paid
+                  </span>
+                  <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                    {formatMoney(sale.amount_paid)}
+                  </span>
+                </div>
+
+                <div className="border-t border-slate-200 pt-3 dark:border-slate-800">
+                  <div className="flex justify-between text-lg">
+                    <span className="font-semibold">Balance owed</span>
+                    <span className="font-bold text-amber-700 dark:text-amber-400">
+                      {formatMoney(sale.balance_owed)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {sale.notes ? (
+              <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Notes
+                </p>
+                <p className="mt-1 text-sm">{sale.notes}</p>
+              </div>
+            ) : null}
+
+            <p className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
+              Thank you for your purchase.
+            </p>
           </div>
-
-          <div className="mt-6 grid gap-3 border-t border-slate-200 pt-6 dark:border-slate-800">
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-500 dark:text-slate-400">
-                Total amount
-              </span>
-              <span className="font-semibold">
-                {formatMoney(sale.total_amount)}
-              </span>
-            </div>
-
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-500 dark:text-slate-400">
-                Amount paid
-              </span>
-              <span className="font-semibold text-emerald-700 dark:text-emerald-400">
-                {formatMoney(sale.amount_paid)}
-              </span>
-            </div>
-
-            <div className="flex justify-between text-lg">
-              <span className="font-semibold">Balance owed</span>
-              <span className="font-bold text-amber-700 dark:text-amber-400">
-                {formatMoney(sale.balance_owed)}
-              </span>
-            </div>
-          </div>
-
-          {sale.notes ? (
-            <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Notes
-              </p>
-              <p className="mt-1 text-sm">{sale.notes}</p>
-            </div>
-          ) : null}
-
-          <p className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
-            Thank you for your purchase.
-          </p>
         </section>
       </div>
     </main>
