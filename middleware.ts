@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
 const protectedRoutes = [
   "/dashboard",
@@ -11,7 +11,7 @@ const protectedRoutes = [
   "/exports",
 ];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   const isProtectedRoute = protectedRoutes.some((route) =>
@@ -22,17 +22,46 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const hasSupabaseSession =
-    request.cookies.get("sb-access-token") ||
-    request.cookies.get("sb-refresh-token") ||
-    request.cookies.getAll().some((cookie) => cookie.name.startsWith("sb-"));
+  let response = NextResponse.next({
+    request,
+  });
 
-  if (!hasSupabaseSession) {
+  const supabase = createServerClient(
+    "https://zzcpkxsyhexixfxzijnf.supabase.co",
+    "sb_publishable_9VhXfq4Smf-bOq_enBRbvg_NBPeIByn",
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => {
+            request.cookies.set(name, value);
+          });
+
+          response = NextResponse.next({
+            request,
+          });
+
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
     const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("next", path);
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
