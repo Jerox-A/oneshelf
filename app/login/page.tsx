@@ -14,6 +14,22 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  async function sendUserToCorrectPage(userId: string) {
+    const { data: settings } = await supabase
+      .from("shop_settings")
+      .select("setup_completed")
+      .eq("owner_id", userId)
+      .maybeSingle();
+
+    if (settings?.setup_completed) {
+      router.push("/dashboard");
+    } else {
+      router.push("/onboarding");
+    }
+
+    router.refresh();
+  }
+
   async function handleSubmit() {
     setLoading(true);
     setMessage("");
@@ -37,7 +53,7 @@ export default function LoginPage() {
     }
 
     if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
       });
@@ -49,13 +65,18 @@ export default function LoginPage() {
         return;
       }
 
+      if (data.user) {
+        await sendUserToCorrectPage(data.user.id);
+        return;
+      }
+
       setMessage(
         "Account created. Check your email if Supabase asks for confirmation."
       );
       return;
     }
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
     });
@@ -67,8 +88,12 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/dashboard");
-    router.refresh();
+    if (data.user) {
+      await sendUserToCorrectPage(data.user.id);
+      return;
+    }
+
+    setMessage("Could not find your account. Please try again.");
   }
 
   return (

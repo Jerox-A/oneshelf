@@ -11,6 +11,7 @@ type Sale = {
   amount_paid: number;
   balance_owed: number;
   payment_method: string;
+  currency_code: string | null;
   notes: string | null;
   created_at: string;
 };
@@ -23,10 +24,33 @@ type SaleItem = {
   total_price: number;
 };
 
+const currencies = [
+  { code: "USD", label: "US Dollar", symbol: "$" },
+  { code: "EUR", label: "Euro", symbol: "€" },
+  { code: "EGP", label: "Egyptian Pound", symbol: "E£" },
+  { code: "GBP", label: "British Pound", symbol: "£" },
+  { code: "AED", label: "UAE Dirham", symbol: "AED" },
+  { code: "SAR", label: "Saudi Riyal", symbol: "SAR" },
+];
+
 export const dynamic = "force-dynamic";
 
-function formatMoney(amount: number) {
-  return `$${Number(amount || 0).toLocaleString()}`;
+function getCurrencySymbol(currencyCode: string | null) {
+  return (
+    currencies.find((currency) => currency.code === currencyCode)?.symbol || "$"
+  );
+}
+
+function getCurrencyLabel(currencyCode: string | null) {
+  return (
+    currencies.find((currency) => currency.code === currencyCode)?.label ||
+    "US Dollar"
+  );
+}
+
+function formatMoney(amount: number, currencyCode: string | null) {
+  const symbol = getCurrencySymbol(currencyCode);
+  return `${symbol} ${Number(amount || 0).toLocaleString()}`;
 }
 
 function formatDate(dateString: string) {
@@ -51,7 +75,7 @@ export default async function SaleReceiptPage({
     supabase
       .from("sales")
       .select(
-        "id, customer_name, total_amount, amount_paid, balance_owed, payment_method, notes, created_at"
+        "id, customer_name, total_amount, amount_paid, balance_owed, payment_method, currency_code, notes, created_at"
       )
       .eq("id", id)
       .single(),
@@ -78,6 +102,7 @@ export default async function SaleReceiptPage({
 
   const sale = saleResponse.data as Sale;
   const items = (itemsResponse.data || []) as SaleItem[];
+  const currencyCode = sale.currency_code || "USD";
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-950 transition-colors dark:bg-slate-950 dark:text-slate-100">
@@ -158,7 +183,7 @@ export default async function SaleReceiptPage({
           </div>
 
           <div className="p-5 sm:p-8">
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
                 <p className="text-sm text-slate-500 dark:text-slate-400">
                   Customer
@@ -171,6 +196,16 @@ export default async function SaleReceiptPage({
                   Payment method
                 </p>
                 <p className="mt-1 font-semibold">{sale.payment_method}</p>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Currency
+                </p>
+                <p className="mt-1 font-semibold">
+                  {getCurrencySymbol(currencyCode)} —{" "}
+                  {getCurrencyLabel(currencyCode)}
+                </p>
               </div>
             </div>
 
@@ -189,12 +224,13 @@ export default async function SaleReceiptPage({
                       <div>
                         <p className="font-semibold">{item.product_name}</p>
                         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                          Qty {item.quantity} × {formatMoney(item.unit_price)}
+                          Qty {item.quantity} ×{" "}
+                          {formatMoney(item.unit_price, currencyCode)}
                         </p>
                       </div>
 
                       <p className="font-bold">
-                        {formatMoney(item.total_price)}
+                        {formatMoney(item.total_price, currencyCode)}
                       </p>
                     </div>
                   </div>
@@ -231,10 +267,10 @@ export default async function SaleReceiptPage({
                         </td>
                         <td className="px-4 py-3">{item.quantity}</td>
                         <td className="px-4 py-3">
-                          {formatMoney(item.unit_price)}
+                          {formatMoney(item.unit_price, currencyCode)}
                         </td>
                         <td className="px-4 py-3 text-right font-semibold">
-                          {formatMoney(item.total_price)}
+                          {formatMoney(item.total_price, currencyCode)}
                         </td>
                       </tr>
                     ))
@@ -250,7 +286,7 @@ export default async function SaleReceiptPage({
                     Total amount
                   </span>
                   <span className="font-semibold">
-                    {formatMoney(sale.total_amount)}
+                    {formatMoney(sale.total_amount, currencyCode)}
                   </span>
                 </div>
 
@@ -259,7 +295,7 @@ export default async function SaleReceiptPage({
                     Amount paid
                   </span>
                   <span className="font-semibold text-emerald-700 dark:text-emerald-400">
-                    {formatMoney(sale.amount_paid)}
+                    {formatMoney(sale.amount_paid, currencyCode)}
                   </span>
                 </div>
 
@@ -267,7 +303,7 @@ export default async function SaleReceiptPage({
                   <div className="flex justify-between text-lg">
                     <span className="font-semibold">Balance owed</span>
                     <span className="font-bold text-amber-700 dark:text-amber-400">
-                      {formatMoney(sale.balance_owed)}
+                      {formatMoney(sale.balance_owed, currencyCode)}
                     </span>
                   </div>
                 </div>

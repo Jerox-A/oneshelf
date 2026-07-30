@@ -9,6 +9,7 @@ const protectedRoutes = [
   "/payments",
   "/reports",
   "/exports",
+  "/onboarding",
 ];
 
 export async function middleware(request: NextRequest) {
@@ -73,5 +74,6 @@ export const config = {
     "/payments/:path*",
     "/reports/:path*",
     "/exports/:path*",
+    "/onboarding/:path*",
   ],
 };
