@@ -1,7 +1,10 @@
 import AppNav from "@/components/AppNav";
 import LogoutButton from "@/components/LogoutButton";
 import ThemeToggle from "@/components/ThemeToggle";
-import { supabase } from "@/lib/supabase";
+import { formatMoney } from "@/lib/currency";
+import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { getShopSettings } from "@/lib/shopSettingsServer";
+import { redirect } from "next/navigation";
 
 type Sale = {
   id: string;
@@ -33,10 +36,6 @@ type Customer = {
 
 export const dynamic = "force-dynamic";
 
-function formatMoney(amount: number) {
-  return `$${Number(amount || 0).toLocaleString()}`;
-}
-
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString("en-US", {
     month: "short",
@@ -45,6 +44,24 @@ function formatDate(dateString: string) {
 }
 
 export default async function DashboardPage() {
+  const supabase = await createSupabaseServerClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const shopSettings = await getShopSettings();
+
+  if (!shopSettings?.setup_completed) {
+    redirect("/onboarding");
+  }
+
+  const currencyCode = shopSettings.currency_code || "USD";
+
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
@@ -130,7 +147,7 @@ export default async function DashboardPage() {
               </p>
 
               <h1 className="mt-2 text-3xl font-bold tracking-tight">
-                Shop dashboard
+                {shopSettings.shop_name || "Shop dashboard"}
               </h1>
 
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
@@ -159,7 +176,9 @@ export default async function DashboardPage() {
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               Today’s sales
             </p>
-            <p className="mt-3 text-3xl font-bold">{formatMoney(todayTotal)}</p>
+            <p className="mt-3 text-3xl font-bold">
+              {formatMoney(todayTotal, currencyCode)}
+            </p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               {todaySales.length} sale today
             </p>
@@ -169,7 +188,9 @@ export default async function DashboardPage() {
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               Cash collected
             </p>
-            <p className="mt-3 text-3xl font-bold">{formatMoney(todayPaid)}</p>
+            <p className="mt-3 text-3xl font-bold">
+              {formatMoney(todayPaid, currencyCode)}
+            </p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               From today’s sales
             </p>
@@ -181,7 +202,7 @@ export default async function DashboardPage() {
             </p>
             <p className="mt-3 text-3xl font-bold">{customersOwing}</p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-              {formatMoney(totalOwed)} total owed
+              {formatMoney(totalOwed, currencyCode)} total owed
             </p>
           </div>
 
@@ -250,13 +271,13 @@ export default async function DashboardPage() {
                           {getSaleItemSummary(sale.id)}
                         </td>
                         <td className="px-4 py-3">
-                          {formatMoney(sale.total_amount)}
+                          {formatMoney(sale.total_amount, currencyCode)}
                         </td>
                         <td className="px-4 py-3 text-emerald-700 dark:text-emerald-400">
-                          {formatMoney(sale.amount_paid)}
+                          {formatMoney(sale.amount_paid, currencyCode)}
                         </td>
                         <td className="px-4 py-3 text-amber-700 dark:text-amber-400">
-                          {formatMoney(sale.balance_owed)}
+                          {formatMoney(sale.balance_owed, currencyCode)}
                         </td>
                       </tr>
                     ))

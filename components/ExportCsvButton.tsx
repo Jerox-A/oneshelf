@@ -3,7 +3,7 @@
 import { supabase } from "@/lib/supabase";
 import { useState } from "react";
 
-type ExportType = "products" | "customers" | "sales";
+type ExportType = "products" | "customers" | "sales" | "payments";
 
 function escapeCsvValue(value: unknown) {
   if (value === null || value === undefined) {
@@ -105,7 +105,7 @@ export default function ExportCsvButton({
       const { data: sales, error: salesError } = await supabase
         .from("sales")
         .select(
-          "id, customer_name, total_amount, amount_paid, balance_owed, payment_method, notes, created_at"
+          "id, customer_name, total_amount, amount_paid, balance_owed, payment_method, currency_code, notes, created_at"
         )
         .order("created_at", { ascending: false });
 
@@ -132,6 +132,7 @@ export default function ExportCsvButton({
           items: matchingItems
             .map((item) => `${item.product_name} x ${item.quantity}`)
             .join("; "),
+          currency_code: sale.currency_code || "USD",
           total_amount: sale.total_amount,
           amount_paid: sale.amount_paid,
           balance_owed: sale.balance_owed,
@@ -141,7 +142,27 @@ export default function ExportCsvButton({
       });
 
       downloadCsv("oneshelf-sales.csv", rows);
+      return;
     }
+
+    if (type === "payments") {
+      const { data, error } = await supabase
+        .from("customer_payments")
+        .select("customer_name, amount, notes, created_at")
+        .order("created_at", { ascending: false });
+
+      setLoading(false);
+
+      if (error) {
+        alert(error.message);
+        return;
+      }
+
+      downloadCsv("oneshelf-payments.csv", data || []);
+      return;
+    }
+
+    setLoading(false);
   }
 
   return (

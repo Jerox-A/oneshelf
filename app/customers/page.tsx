@@ -3,7 +3,10 @@ import DeleteCustomerButton from "@/components/DeleteCustomerButton";
 import LogoutButton from "@/components/LogoutButton";
 import RecordCustomerPaymentButton from "@/components/RecordCustomerPaymentButton";
 import ThemeToggle from "@/components/ThemeToggle";
+import { formatMoney } from "@/lib/currency";
+import { getShopSettings } from "@/lib/shopSettingsServer";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { redirect } from "next/navigation";
 
 type Customer = {
   id: string;
@@ -15,10 +18,6 @@ type Customer = {
 };
 
 export const dynamic = "force-dynamic";
-
-function formatMoney(amount: number) {
-  return `$${Number(amount || 0).toLocaleString()}`;
-}
 
 function formatDate(dateString: string | null) {
   if (!dateString) {
@@ -46,6 +45,22 @@ export default async function CustomersPage({
   const selectedBalance = params.balance || "all";
 
   const supabase = await createSupabaseServerClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const shopSettings = await getShopSettings();
+
+  if (!shopSettings?.setup_completed) {
+    redirect("/onboarding");
+  }
+
+  const currencyCode = shopSettings.currency_code || "USD";
 
   const { data, error } = await supabase
     .from("customers")
@@ -172,7 +187,9 @@ export default async function CustomersPage({
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               Total owed
             </p>
-            <p className="mt-3 text-3xl font-bold">{formatMoney(totalOwed)}</p>
+            <p className="mt-3 text-3xl font-bold">
+              {formatMoney(totalOwed, currencyCode)}
+            </p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Outstanding customer debt
             </p>
@@ -296,7 +313,7 @@ export default async function CustomersPage({
                               : "font-semibold text-emerald-700 dark:text-emerald-400"
                           }
                         >
-                          {formatMoney(balanceOwed)}
+                          {formatMoney(balanceOwed, currencyCode)}
                         </p>
                       </div>
 
@@ -372,7 +389,7 @@ export default async function CustomersPage({
                           {customer.phone || "No phone"}
                         </td>
                         <td className="px-4 py-3">
-                          {formatMoney(balanceOwed)}
+                          {formatMoney(balanceOwed, currencyCode)}
                         </td>
                         <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
                           {formatDate(customer.last_purchase_at)}

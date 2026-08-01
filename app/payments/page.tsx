@@ -1,6 +1,8 @@
 import AppNav from "@/components/AppNav";
 import LogoutButton from "@/components/LogoutButton";
 import ThemeToggle from "@/components/ThemeToggle";
+import { formatMoney } from "@/lib/currency";
+import { getShopSettings } from "@/lib/shopSettingsServer";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { redirect } from "next/navigation";
 
@@ -13,10 +15,6 @@ type CustomerPayment = {
 };
 
 export const dynamic = "force-dynamic";
-
-function formatMoney(amount: number) {
-  return `$${Number(amount || 0).toLocaleString()}`;
-}
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleString("en-US", {
@@ -38,6 +36,14 @@ export default async function PaymentsPage() {
   if (!user) {
     redirect("/login");
   }
+
+  const shopSettings = await getShopSettings();
+
+  if (!shopSettings?.setup_completed) {
+    redirect("/onboarding");
+  }
+
+  const currencyCode = shopSettings.currency_code || "USD";
 
   const { data, error } = await supabase
     .from("customer_payments")
@@ -131,7 +137,7 @@ export default async function PaymentsPage() {
               Total payments
             </p>
             <p className="mt-3 text-3xl font-bold">
-              {formatMoney(totalPayments)}
+              {formatMoney(totalPayments, currencyCode)}
             </p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               All recorded payments
@@ -143,7 +149,7 @@ export default async function PaymentsPage() {
               Today’s payments
             </p>
             <p className="mt-3 text-3xl font-bold text-emerald-700 dark:text-emerald-400">
-              {formatMoney(todayTotal)}
+              {formatMoney(todayTotal, currencyCode)}
             </p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               {todayPayments.length} payments today
@@ -191,7 +197,7 @@ export default async function PaymentsPage() {
                     </div>
 
                     <p className="font-bold text-emerald-700 dark:text-emerald-400">
-                      {formatMoney(payment.amount)}
+                      {formatMoney(payment.amount, currencyCode)}
                     </p>
                   </div>
 
@@ -240,7 +246,7 @@ export default async function PaymentsPage() {
                         {payment.customer_name}
                       </td>
                       <td className="px-4 py-3 font-semibold text-emerald-700 dark:text-emerald-400">
-                        {formatMoney(payment.amount)}
+                        {formatMoney(payment.amount, currencyCode)}
                       </td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
                         {payment.notes || "No notes"}

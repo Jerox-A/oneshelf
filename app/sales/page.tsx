@@ -2,7 +2,10 @@ import AppNav from "@/components/AppNav";
 import CancelSaleButton from "@/components/CancelSaleButton";
 import LogoutButton from "@/components/LogoutButton";
 import ThemeToggle from "@/components/ThemeToggle";
+import { formatMoney } from "@/lib/currency";
+import { getShopSettings } from "@/lib/shopSettingsServer";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { redirect } from "next/navigation";
 
 type Sale = {
   id: string;
@@ -26,10 +29,6 @@ type SaleItem = {
 
 export const dynamic = "force-dynamic";
 
-function formatMoney(amount: number) {
-  return `$${Number(amount || 0).toLocaleString()}`;
-}
-
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleString("en-US", {
     month: "short",
@@ -42,6 +41,22 @@ function formatDate(dateString: string) {
 
 export default async function SalesPage() {
   const supabase = await createSupabaseServerClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const shopSettings = await getShopSettings();
+
+  if (!shopSettings?.setup_completed) {
+    redirect("/onboarding");
+  }
+
+  const currencyCode = shopSettings.currency_code || "USD";
 
   const [salesResponse, saleItemsResponse] = await Promise.all([
     supabase
@@ -155,7 +170,9 @@ export default async function SalesPage() {
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               Total sales
             </p>
-            <p className="mt-3 text-3xl font-bold">{formatMoney(totalSales)}</p>
+            <p className="mt-3 text-3xl font-bold">
+              {formatMoney(totalSales, currencyCode)}
+            </p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               All recorded sales
             </p>
@@ -166,7 +183,7 @@ export default async function SalesPage() {
               Total paid
             </p>
             <p className="mt-3 text-3xl font-bold text-emerald-700 dark:text-emerald-400">
-              {formatMoney(totalPaid)}
+              {formatMoney(totalPaid, currencyCode)}
             </p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Cash collected
@@ -178,7 +195,7 @@ export default async function SalesPage() {
               Total balance
             </p>
             <p className="mt-3 text-3xl font-bold text-amber-700 dark:text-amber-400">
-              {formatMoney(totalBalance)}
+              {formatMoney(totalBalance, currencyCode)}
             </p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Still unpaid
@@ -233,7 +250,7 @@ export default async function SalesPage() {
                     </div>
 
                     <p className="font-bold">
-                      {formatMoney(sale.total_amount)}
+                      {formatMoney(sale.total_amount, currencyCode)}
                     </p>
                   </div>
 
@@ -247,7 +264,7 @@ export default async function SalesPage() {
                         Paid
                       </p>
                       <p className="font-semibold text-emerald-700 dark:text-emerald-400">
-                        {formatMoney(sale.amount_paid)}
+                        {formatMoney(sale.amount_paid, currencyCode)}
                       </p>
                     </div>
 
@@ -256,7 +273,7 @@ export default async function SalesPage() {
                         Balance
                       </p>
                       <p className="font-semibold text-amber-700 dark:text-amber-400">
-                        {formatMoney(sale.balance_owed)}
+                        {formatMoney(sale.balance_owed, currencyCode)}
                       </p>
                     </div>
 
@@ -321,13 +338,13 @@ export default async function SalesPage() {
                         {getSaleItemSummary(sale.id)}
                       </td>
                       <td className="px-4 py-3">
-                        {formatMoney(sale.total_amount)}
+                        {formatMoney(sale.total_amount, currencyCode)}
                       </td>
                       <td className="px-4 py-3 text-emerald-700 dark:text-emerald-400">
-                        {formatMoney(sale.amount_paid)}
+                        {formatMoney(sale.amount_paid, currencyCode)}
                       </td>
                       <td className="px-4 py-3 text-amber-700 dark:text-amber-400">
-                        {formatMoney(sale.balance_owed)}
+                        {formatMoney(sale.balance_owed, currencyCode)}
                       </td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
                         {sale.payment_method}

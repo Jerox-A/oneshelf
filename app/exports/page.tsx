@@ -2,6 +2,7 @@ import AppNav from "@/components/AppNav";
 import ExportCsvButton from "@/components/ExportCsvButton";
 import LogoutButton from "@/components/LogoutButton";
 import ThemeToggle from "@/components/ThemeToggle";
+import { getShopSettings } from "@/lib/shopSettingsServer";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { redirect } from "next/navigation";
 
@@ -16,6 +17,12 @@ export default async function ExportsPage() {
 
   if (!user) {
     redirect("/login");
+  }
+
+  const shopSettings = await getShopSettings();
+
+  if (!shopSettings?.setup_completed) {
+    redirect("/onboarding");
   }
 
   return (
@@ -34,8 +41,8 @@ export default async function ExportsPage() {
               </h1>
 
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400">
-                Download your products, customers, and sales as CSV files for
-                Excel, Google Sheets, backups, or accounting.
+                Download your products, customers, sales, and payments as CSV
+                files for Excel, Google Sheets, backups, or accounting.
               </p>
             </div>
 
@@ -57,7 +64,7 @@ export default async function ExportsPage() {
           </div>
         </header>
 
-        <section className="mt-8 grid gap-6 md:grid-cols-3">
+        <section className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 sm:p-6">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-xl dark:bg-blue-950">
               📦
@@ -100,12 +107,29 @@ export default async function ExportsPage() {
             <h2 className="mt-5 text-lg font-semibold">Sales</h2>
 
             <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
-              Export sales with customer names, sold items, totals, paid
-              amounts, balances, and payment methods.
+              Export sales with customer names, sold items, totals, currency,
+              paid amounts, balances, and payment methods.
             </p>
 
             <div className="mt-6">
               <ExportCsvButton type="sales" label="Export sales CSV" />
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 sm:p-6">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-50 text-xl dark:bg-purple-950">
+              💵
+            </div>
+
+            <h2 className="mt-5 text-lg font-semibold">Payments</h2>
+
+            <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
+              Export customer payment records with names, amounts, notes, and
+              payment dates.
+            </p>
+
+            <div className="mt-6">
+              <ExportCsvButton type="payments" label="Export payments CSV" />
             </div>
           </div>
         </section>

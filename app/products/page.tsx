@@ -2,7 +2,10 @@ import AppNav from "@/components/AppNav";
 import DeleteProductButton from "@/components/DeleteProductButton";
 import LogoutButton from "@/components/LogoutButton";
 import ThemeToggle from "@/components/ThemeToggle";
+import { formatMoney } from "@/lib/currency";
+import { getShopSettings } from "@/lib/shopSettingsServer";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
+import { redirect } from "next/navigation";
 
 type Product = {
   id: string;
@@ -15,10 +18,6 @@ type Product = {
 };
 
 export const dynamic = "force-dynamic";
-
-function formatMoney(amount: number) {
-  return `$${Number(amount || 0).toLocaleString()}`;
-}
 
 export default async function ProductsPage({
   searchParams,
@@ -36,6 +35,22 @@ export default async function ProductsPage({
   const selectedStock = params.stock || "all";
 
   const supabase = await createSupabaseServerClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const shopSettings = await getShopSettings();
+
+  if (!shopSettings?.setup_completed) {
+    redirect("/onboarding");
+  }
+
+  const currencyCode = shopSettings.currency_code || "USD";
 
   const { data, error } = await supabase
     .from("products")
@@ -226,7 +241,9 @@ export default async function ProductsPage({
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               Stock value
             </p>
-            <p className="mt-3 text-3xl font-bold">{formatMoney(stockValue)}</p>
+            <p className="mt-3 text-3xl font-bold">
+              {formatMoney(stockValue, currencyCode)}
+            </p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Based on cost price
             </p>
@@ -347,7 +364,7 @@ export default async function ProductsPage({
                           Cost
                         </p>
                         <p className="font-semibold">
-                          {formatMoney(product.cost_price)}
+                          {formatMoney(product.cost_price, currencyCode)}
                         </p>
                       </div>
 
@@ -356,7 +373,7 @@ export default async function ProductsPage({
                           Selling
                         </p>
                         <p className="font-semibold">
-                          {formatMoney(product.selling_price)}
+                          {formatMoney(product.selling_price, currencyCode)}
                         </p>
                       </div>
 
@@ -435,10 +452,10 @@ export default async function ProductsPage({
                           {product.category}
                         </td>
                         <td className="px-4 py-3">
-                          {formatMoney(product.cost_price)}
+                          {formatMoney(product.cost_price, currencyCode)}
                         </td>
                         <td className="px-4 py-3">
-                          {formatMoney(product.selling_price)}
+                          {formatMoney(product.selling_price, currencyCode)}
                         </td>
                         <td className="px-4 py-3">
                           {product.stock_quantity}

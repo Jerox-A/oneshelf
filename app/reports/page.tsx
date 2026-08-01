@@ -1,6 +1,8 @@
 import AppNav from "@/components/AppNav";
 import LogoutButton from "@/components/LogoutButton";
 import ThemeToggle from "@/components/ThemeToggle";
+import { formatMoney } from "@/lib/currency";
+import { getShopSettings } from "@/lib/shopSettingsServer";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 import { redirect } from "next/navigation";
 
@@ -31,10 +33,6 @@ type Product = {
 };
 
 export const dynamic = "force-dynamic";
-
-function formatMoney(amount: number) {
-  return `$${Number(amount || 0).toLocaleString()}`;
-}
 
 function formatDateInput(date: Date) {
   return date.toISOString().split("T")[0];
@@ -172,6 +170,14 @@ export default async function ReportsPage({
   if (!user) {
     redirect("/login");
   }
+
+  const shopSettings = await getShopSettings();
+
+  if (!shopSettings?.setup_completed) {
+    redirect("/onboarding");
+  }
+
+  const currencyCode = shopSettings.currency_code || "USD";
 
   const [salesResponse, saleItemsResponse, productsResponse] =
     await Promise.all([
@@ -418,7 +424,9 @@ export default async function ReportsPage({
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               Sales total
             </p>
-            <p className="mt-3 text-3xl font-bold">{formatMoney(totalSales)}</p>
+            <p className="mt-3 text-3xl font-bold">
+              {formatMoney(totalSales, currencyCode)}
+            </p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               {filteredSales.length} sales in this period
             </p>
@@ -429,7 +437,7 @@ export default async function ReportsPage({
               Cash collected
             </p>
             <p className="mt-3 text-3xl font-bold text-emerald-700 dark:text-emerald-400">
-              {formatMoney(totalCollected)}
+              {formatMoney(totalCollected, currencyCode)}
             </p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Paid amount in this period
@@ -441,7 +449,7 @@ export default async function ReportsPage({
               Unpaid balance
             </p>
             <p className="mt-3 text-3xl font-bold text-amber-700 dark:text-amber-400">
-              {formatMoney(totalUnpaid)}
+              {formatMoney(totalUnpaid, currencyCode)}
             </p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Balance created in this period
@@ -453,7 +461,7 @@ export default async function ReportsPage({
               Estimated profit
             </p>
             <p className="mt-3 text-3xl font-bold">
-              {formatMoney(estimatedProfit)}
+              {formatMoney(estimatedProfit, currencyCode)}
             </p>
             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Based on current cost prices
@@ -498,7 +506,7 @@ export default async function ReportsPage({
                       Revenue
                     </p>
                     <p className="font-semibold text-emerald-700 dark:text-emerald-400">
-                      {formatMoney(product.revenue)}
+                      {formatMoney(product.revenue, currencyCode)}
                     </p>
                   </div>
                 ))
@@ -533,7 +541,7 @@ export default async function ReportsPage({
                         </td>
                         <td className="px-4 py-3">{product.quantity}</td>
                         <td className="px-4 py-3">
-                          {formatMoney(product.revenue)}
+                          {formatMoney(product.revenue, currencyCode)}
                         </td>
                       </tr>
                     ))
